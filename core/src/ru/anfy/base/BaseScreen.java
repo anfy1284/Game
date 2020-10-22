@@ -5,15 +5,36 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
+
+import ru.anfy.math.MatrixUtils;
+import ru.anfy.math.Rect;
+
 
 public class BaseScreen implements Screen, InputProcessor {
 
     protected SpriteBatch batch;
+    private Rect screenBounds;
+    private Rect worldBounds;
+    private Rect glBounds;
+
+    private Matrix4 worldToGl;
+    private Matrix3 screenToWorld;
+
+    public Vector2 touch;
 
     @Override
     public void show() {
         batch = new SpriteBatch();
+        screenBounds = new Rect();
+        worldBounds = new Rect();
+        glBounds = new Rect(0, 0, 1f, 1f);
+        worldToGl = new Matrix4();
+        screenToWorld = new Matrix3();
         Gdx.input.setInputProcessor(this);
+        touch = new Vector2();
     }
 
     @Override
@@ -24,6 +45,22 @@ public class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public void resize(int width, int height) {
+        screenBounds.setSize(width, height);
+        screenBounds.setLeft(0);
+        screenBounds.setBottom(0);
+
+        float aspect = width / (float) height;
+        worldBounds.setHeight(1f);
+        worldBounds.setWidth(1f * aspect);
+        MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
+        batch.setProjectionMatrix(worldToGl);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+        resize(worldBounds);
+
+    }
+
+
+    public void resize(Rect worldBounds) {
 
     }
 
@@ -59,6 +96,14 @@ public class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
+        touchDown(touch, pointer, button);
+        return false;
+    }
+
+    public boolean touchDown(Vector2 touch, int pointer, int button) {
+        System.out.println("touchDown touch.X = " + touch.x + " touch.Y = " + touch.y);
         return false;
     }
 
