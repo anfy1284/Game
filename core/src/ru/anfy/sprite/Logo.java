@@ -1,37 +1,26 @@
-package ru.anfy.Sprite;
+package ru.anfy.sprite;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-public class Sprite {
-    final private float DEFAULT_VELOCITY = 20f;
-    final private float DEFAULT_BRAKE = 0.8f;
-    final private float DEFAULT_BRAKE_WAY = 3f;
+import ru.anfy.math.Rect;
 
-    private Vector2 pos;
+public class Logo extends Sprite {
+
+    final private float DEFAULT_VELOCITY = 0.06f;
+    final private float DEFAULT_BRAKE = 0.8f;
+    final private float DEFAULT_BRAKE_WAY = 1.0f;
+
     private Vector2 destination;
     private Vector2 way;
-    private SpriteBatch batch;
-    private Texture img;
 
     private float velocity;
     private float brake;
     private float brakeWay;
 
-
-    public Sprite(SpriteBatch batch, int x, int y, String imgName){
-        pos = new Vector2((float) x, (float) y);
-        destination = new Vector2((float) x, (float) y);
-        brake = DEFAULT_BRAKE;
-        this.batch = batch;
-        img = new Texture(imgName);
-        way = new Vector2();
-        brakeWay = DEFAULT_BRAKE_WAY;
-    }
-
-    public void setPos(Vector2 pos) {
-        this.pos = pos;
+    public Logo(TextureRegion region) {
+        super(region);
     }
 
     public void setDestination(float x, float y) {
@@ -46,6 +35,7 @@ public class Sprite {
     }
 
     private void calc(){
+        //тут пока не оптимизировано, потом перепишу
         if(way.isZero()) return;
 
         Vector2 newPos = new Vector2(pos);
@@ -62,20 +52,30 @@ public class Sprite {
             pos.add(way);
         }
 
-
-/*
-        if(pos.equals(destination)) return;
-        Vector2 way = new Vector2(destination);
-        way.sub(pos).setLength(velocity);
-        pos.add(way);
-
- */
     }
 
-    public void draw(){
-        batch.draw(img, pos.x, pos.y);
+    public Logo(TextureRegion region, float halfWidth, float halfHeight){
+        super(region, halfWidth, halfHeight);
+
+        //pos = new Vector2((float) x, (float) y);
+        destination = new Vector2(0, 0);
+        brake = DEFAULT_BRAKE;
+        //this.batch = batch;
+        //img = new Texture(imgName);
+        way = new Vector2();
+        brakeWay = DEFAULT_BRAKE_WAY;
+    }
+
+    @Override
+    public void draw(SpriteBatch batch) {
+        super.draw(batch);
         calc();
     }
 
-
+    @Override
+    public void resize(Rect worldBounds) {
+//        setHeightProportion(worldBounds.getHeight());
+///        pos.set(worldBounds.pos);
+    }
 }
+
